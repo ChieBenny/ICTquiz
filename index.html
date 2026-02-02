@@ -131,14 +131,29 @@
       return id;
     }
 
-    async function sendQuizResult(correct, total, selections) {
-      const payload = {
-        quizTitle: QUIZ_TITLE,
-        score: correct,
-        total: total,
-        selections: selections,
-        trainingId: trainingId
-      };
+async function sendQuizResult(correct, total, selections) {
+  const trainingId = document.getElementById("trainingId").value || "";
+
+  const payload = {
+    quizTitle: QUIZ_TITLE,
+    score: correct,
+    total: total,
+    selections: selections,
+    trainingId: trainingId
+  };
+
+  try {
+    await fetch(GAS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    console.log("送信完了:", payload);
+  } catch (e) {
+    console.error("送信エラー:", e);
+  }
+}
 
       try {
         await fetch(GAS_ENDPOINT, {
@@ -258,6 +273,7 @@
   </script>
 </body>
 </html>
+
 
 
 
