@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>情報セキュリティ 基礎クイズ（お試し3問）</title>
+  https://fonts.googleapis.com
+  https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Poppins:wght@500&display=swap
+  <style>
+    :root{
+      --bg:#fff7fb; --card:#ffffff; --accent:#ff77aa; --accent-2:#8dd7cf;
+      --text:#333; --muted:#777; --correct:#23a559; --wrong:#e55353;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:"Kosugi Maru","Hiragino Kaku Gothic ProN",Meiryo,sans-serif;
+      background: radial-gradient(1200px 600px at 10% -10%, #ffe0f0 0%, transparent 50%),
+                  radial-gradient(1200px 600px at 110% 110%, #e5fff9 0%, transparent 50%), var(--bg);
+      color:var(--text);
+    }
+    .container{max-width:980px; margin:24px auto; padding:16px;}
+    .header{text-align:center; margin-bottom:16px;}
+    .badge{display:inline-block; padding:6px 12px; border-radius:999px; background:#fff; color:var(--muted); font-size:12px; border:1px dashed #eee;}
+    h1{margin:8px 0 12px; font-family:"Poppins",system-ui; font-weight:600; letter-spacing:0.2px;}
+    .quiz-card{background:var(--card); border-radius:18px; padding:18px; box-shadow:0 8px 24px rgba(0,0,0,.06); animation:pop .45s ease;}
+    @keyframes pop{from{transform:translateY(6px); opacity:0} to{transform:translateY(0); opacity:1}}
+    .progress{height:10px; background:#f3f3f5; border-radius:999px; overflow:hidden; margin-bottom:16px;}
+    .bar{height:100%; width:0; background:linear-gradient(90deg,var(--accent),#ffb7cc); transition:width .4s ease;}
+    .question{border:1px solid #f1e9ef; border-radius:14px; padding:14px; margin:12px 0; background:#fff9fc;}
+    .q-head{display:flex; gap:10px; align-items:flex-start; margin-bottom:10px;}
+    .q-no{flex:0 0 auto; background:var(--accent); color:#fff; font-weight:700; border-radius:10px; padding:6px 10px; font-size:12px; box-shadow:0 6px 12px rgba(255,119,170,.25);}
+    .q-title{font-size:16px; line-height:1.6;}
+    .q-img{margin:8px 0; border-radius:12px; overflow:hidden; border:1px solid #f1e9ef;}
+    .q-img img{width:100%; height:auto; display:block;}
+    .choices{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;}
+    @media (max-width:680px){ .choices{grid-template-columns:1fr;} }
+    .choice{position:relative; border:1.5px solid #f0dbe6; background:#fff; border-radius:12px; padding:12px; cursor:pointer; transition:.2s; display:flex; align-items:center; gap:10px;}
+    .choice:hover{transform:translateY(-1px); box-shadow:0 6px 16px rgba(255,119,170,.12);}
+    .choice input{display:none;}
+    .choice .dot{width:20px; height:20px; border-radius:50%; border:2px solid #ccc; flex:0 0 auto; background:#fff;}
+    .choice.selected{border-color:var(--accent); background:linear-gradient(180deg,#fff 0%, #fff4f8 100%);}
+    .choice.selected .dot{border-color:var(--accent); background:var(--accent); box-shadow:0 0 0 4px #ffd8e6;}
+    .result{display:none; margin-top:10px; border-radius:12px; padding:12px; background:#fff; border:1px dashed #eee;}
+    .result.correct{border-color:#cfeedd; background:#f6fffa;}
+    .result.wrong{border-color:#f4d6d6; background:#fff7f7;}
+    .result .status{font-weight:700; margin-bottom:6px;}
+    .controls{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:18px 0 10px;}
+    .btn{border:0; border-radius:999px; padding:12px 20px; font-weight:700; cursor:pointer; transition:.2s; letter-spacing:0.4px;}
+    .btn-primary{color:#fff; background:linear-gradient(90deg,var(--accent),#ffa3bf); box-shadow:0 8px 24px rgba(255,119,170,.35);}
+    .btn-primary:hover{transform:translateY(-1px);}
+    .btn-ghost{background:#fff; border:1px solid #eee; color:var(--muted);}
+    .score{text-align:center; font-size:18px; font-weight:700; margin-top:6px;}
+    .footer{text-align:center; color:var(--muted); font-size:12px; margin:18px 0 30px;}
+    .legend{text-align:center; color:var(--muted); font-size:12px; margin-top:6px;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="badge">２択 × 3問</div>
+      <h1>情報セキュリティ 基礎クイズ（お試し3問）</h1>
+      <div class="legend">すべて選んでから「採点する」を押してください。</div>
+    </div>
+
+    <div class="quiz-card">
+      <div class="progress"><div id="bar" class="bar"></div></div>
+      <div id="quiz"></div>
+
+<div style="text-align:center; margin-bottom: 16px;">
+  <label>研修用ID：
+    <input id="trainingId" type="text" placeholder="例：A12345" style="padding:6px 10px; border-radius:6px; border:1px solid #ccc;">
+  </label>
+</div>
+      
+      <div class="controls">
+        <button id="checkBtn" class="btn btn-primary">採点する</button>
+        <button id="retryBtn" class="btn btn-ghost" style="display:none">もう一度</button>
+      </div>
+      <div id="score" class="score"></div>
+    </div>
+
+    <div class="footer">© クイズサンプル</div>
+  </div>
+
+  <script>
+    // === 出題内容 ==========================================================
+    const QUESTIONS = [
+      {
+        text: "次のうち個人情報に該当するものはどちらでしょうか？",
+        choices: [
+          "A）学校名と学籍番号が記載されたテスト結果",
+          "B）電話番号だけ記載された連絡簿（生徒名簿で電話番号を管理）"
+        ],
+        answer: 1,
+        explain:
+          "個人情報は、生存する特定の個人に関する情報の中で、個人を識別できるもののことです。学校の生徒簿などとの照合によって特定の個人が識別できる場合は、個人情報です。",
+        img: ""
+      },
+      {
+        text: "ランサムウェアが起こす被害として適切なものはどちらでしょうか？",
+        choices: [
+          "A）PCの強制的なロックや、ファイルの暗号化などを行い、復元することと引き換えに身代金を要求する",
+          "B）感染したパソコンの内部情報を勝手に外部に送信する"
+        ],
+        answer: 0,
+        explain:
+          "ランサムウェアは、PCの強制的なロックやファイル暗号化などを行い、復元と引き換えに身代金を要求します。ただし、身代金を払っても必ず復元されるとは限りません。",
+        img: ""
+      },
+      {
+        text: "業務用のメールアドレスに届くメールの取り扱いについて、適切な対応はどちらでしょうか？",
+        choices: [
+          "A）添付ファイルがついている場合には、業務に必要なファイルのため、まずは開いてみる",
+          "B）メールの送信者は偽装される可能性があるため、常にリンク先や添付ファイルには注意を払う"
+        ],
+        answer: 1,
+        explain:
+          "業務用のメールアドレスでも、近年は標的型攻撃メールのターゲットとなる可能性があるため常に注意が必要です。送信元偽装、過去履歴を装った件名、添付ファイルに潜むマルウェアなどの危険を理解しておきましょう。",
+        img: ""
+      }
+    ];
+    const QUIZ_TITLE = "情報セキュリティ 基礎クイズ（お試し3問）";
+    const REQUIRE_ANSWER_ALL = true;
+
+    // === Google スプレッドシート送信用 ======================================
+    const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbzvXg7vnsJW20U67Xf_4m69ywM-_8NBki4S4qCnEFSaEhqaQY8DH7_ZJdr92QStAhcJOQ/exec";
+
+    function generateClientId() {
+      const id = "client-" + Math.random().toString(36).substring(2);
+      localStorage.setItem("clientId", id);
+      return id;
+    }
+
+async function sendQuizResult(correct, total, selections) {
+  const trainingId = document.getElementById("trainingId").value || "";
+
+  const payload = {
+    quizTitle: QUIZ_TITLE,
+    score: correct,
+    total: total,
+    selections: selections,
+    trainingId: trainingId
+  };
+
+  try {
+    await fetch(GAS_ENDPOINT, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    console.log("送信完了:", payload);
+  } catch (e) {
+    console.error("送信エラー:", e);
+  }
+}
+
+    // === クイズ処理 ==========================================================
+    const quizEl = document.getElementById("quiz");
+    const barEl = document.getElementById("bar");
+    const scoreEl = document.getElementById("score");
+    const checkBtn = document.getElementById("checkBtn");
+    const retryBtn = document.getElementById("retryBtn");
+
+    let selections = Array(QUESTIONS.length).fill(null);
+    let revealed = false;
+
+    function render(){
+      document.querySelector("h1").textContent = QUIZ_TITLE;
+      quizEl.innerHTML = "";
+      QUESTIONS.forEach((q,idx)=>{
+        const qWrap = document.createElement("div");
+        qWrap.className = "question";
+        const head = document.createElement("div");
+        head.className = "q-head";
+        head.innerHTML = `<div class="q-no">${idx+1}</div><div class="q-title">${q.text}</div>`;
+        qWrap.appendChild(head);
+        if (q.img){
+          const imgWrap = document.createElement("div");
+          imgWrap.className = "q-img";
+          imgWrap.innerHTML = `${q.img}`;
+          qWrap.appendChild(imgWrap);
+        }
+        const choices = document.createElement("div");
+        choices.className = "choices";
+        q.choices.forEach((label, cIdx)=>{
+          const ch = document.createElement("label");
+          ch.className = "choice";
+          ch.innerHTML = `<input type="radio" name="q${idx}" value="${cIdx}">
+                          <span class="dot"></span>
+                          <span>${label}</span>`;
+          if (selections[idx] === cIdx) ch.classList.add("selected");
+          ch.addEventListener("click", ()=>{
+            if (revealed) return;
+            selections[idx] = cIdx;
+            updateProgress();
+            render();
+          });
+          choices.appendChild(ch);
+        });
+        qWrap.appendChild(choices);
+        const result = document.createElement("div");
+        result.className = "result";
+        result.id = `res-${idx}`;
+        qWrap.appendChild(result);
+        quizEl.appendChild(qWrap);
+      });
+      updateProgress();
+    }
+
+    function updateProgress(){
+      const answered = selections.filter(v=>v!==null).length;
+      const percent = Math.round(answered / QUESTIONS.length * 100);
+      barEl.style.width = percent + "%";
+    }
+
+    function grade(){
+      if (REQUIRE_ANSWER_ALL && selections.some(v=>v===null)){
+        alert("未回答の問題があります。すべて選択してください。");
+        return;
+      }
+      let correct = 0;
+      QUESTIONS.forEach((q,idx)=>{
+        const isCorrect = selections[idx] === q.answer;
+        if (isCorrect) correct++;
+        const res = document.getElementById(`res-${idx}`);
+        res.style.display = "block";
+        res.classList.toggle("correct", isCorrect);
+        res.classList.toggle("wrong", !isCorrect);
+        const status = isCorrect ? `✅ 正解！` : `❌ 不正解`;
+        const correctLabel = q.choices[q.answer];
+        res.innerHTML = `
+          <div class="status">${status}</div>
+          <div class="explain"><strong>正答：</strong>${correctLabel}<br>${q.explain}</div>
+        `;
+      });
+      revealed = true;
+      scoreEl.textContent = `スコア：${correct} / ${QUESTIONS.length}`;
+      checkBtn.style.display = "none";
+      retryBtn.style.display = "inline-block";
+      document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.08)'},{filter:'brightness(1)'}],{duration:500});
+
+      // ★★★ 採点後にスプレッドシートへ送信 ★★★
+      sendQuizResult(correct, QUESTIONS.length, selections);
+    }
+
+    function reset(){
+      selections = Array(QUESTIONS.length).fill(null);
+      revealed = false;
+      scoreEl.textContent = "";
+      checkBtn.style.display = "inline-block";
+      retryBtn.style.display = "none";
+      render();
+      document.querySelectorAll(".result").forEach(el=>el.style.display="none");
+    }
+
+    checkBtn.addEventListener("click", grade);
+    retryBtn.addEventListener("click", reset);
+    render();
+  </script>
+</body>
+</html>
+
+
+
+
+
+
