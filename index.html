@@ -66,6 +66,12 @@
       <div class="progress"><div id="bar" class="bar"></div></div>
       <div id="quiz"></div>
 
+<div style="text-align:center; margin-bottom: 16px;">
+  <label>研修用ID：
+    <input id="trainingId" type="text" placeholder="例：A12345" style="padding:6px 10px; border-radius:6px; border:1px solid #ccc;">
+  </label>
+</div>
+      
       <div class="controls">
         <button id="checkBtn" class="btn btn-primary">採点する</button>
         <button id="retryBtn" class="btn btn-ghost" style="display:none">もう一度</button>
@@ -131,6 +137,7 @@
         score: correct,
         total: total,
         selections: selections,
+        trainingId: trainingId
       };
 
       try {
@@ -251,6 +258,7 @@
   </script>
 </body>
 </html>
+
 
 
 
