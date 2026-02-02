@@ -155,19 +155,6 @@ async function sendQuizResult(correct, total, selections) {
   }
 }
 
-      try {
-        await fetch(GAS_ENDPOINT, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        console.log("送信完了:", payload);
-      } catch (e) {
-        console.error("送信エラー:", e);
-      }
-    }
-
     // === クイズ処理 ==========================================================
     const quizEl = document.getElementById("quiz");
     const barEl = document.getElementById("bar");
@@ -273,6 +260,7 @@ async function sendQuizResult(correct, total, selections) {
   </script>
 </body>
 </html>
+
 
 
 
