@@ -115,8 +115,40 @@
     ];
     const QUIZ_TITLE = "情報セキュリティ 基礎クイズ（お試し3問）";
     const REQUIRE_ANSWER_ALL = true;
-    // === ここまで ==========================================================
 
+    // === Google スプレッドシート送信用 ======================================
+    const GAS_ENDPOINT = "https://script.google.com/a/macros/rakunan-h.ed.jp/s/AKfycbybf3_b7Jf_KCjTwKAnL2uYKeqGdhTNesyk6Cx53hJxLJd-FeMMCG25Ho7uehmotKnkPQ/exec";
+
+    function generateClientId() {
+      const id = "client-" + Math.random().toString(36).substring(2);
+      localStorage.setItem("clientId", id);
+      return id;
+    }
+
+    async function sendQuizResult(correct, total, selections) {
+      const payload = {
+        quizTitle: QUIZ_TITLE,
+        score: correct,
+        total: total,
+        selections: selections,
+        userAgent: navigator.userAgent,
+        clientId: localStorage.getItem("clientId") || generateClientId()
+      };
+
+      try {
+        await fetch(GAS_ENDPOINT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        console.log("送信完了:", payload);
+      } catch (e) {
+        console.error("送信エラー:", e);
+      }
+    }
+
+    // === クイズ処理 ==========================================================
     const quizEl = document.getElementById("quiz");
     const barEl = document.getElementById("bar");
     const scoreEl = document.getElementById("score");
@@ -201,6 +233,7 @@
       retryBtn.style.display = "inline-block";
       document.body.animate([{filter:'brightness(1)'},{filter:'brightness(1.08)'},{filter:'brightness(1)'}],{duration:500});
 
+      // ★★★ 採点後にスプレッドシートへ送信 ★★★
       sendQuizResult(correct, QUESTIONS.length, selections);
     }
 
@@ -217,42 +250,6 @@
     checkBtn.addEventListener("click", grade);
     retryBtn.addEventListener("click", reset);
     render();
-
-// === Google スプレッドシート送信用 ======================================
-const GAS_ENDPOINT = "https://script.google.com/macros/s/AKfycbyD6ZxW-lUWw5jtYG0vpT3mcF7YGqBQLY8UzwNdyNMKpHvlZAVFF9Vd-nyAr6KWBqUj5Q/exec";  // ← ここにGASのURLを貼る
-
-function generateClientId() {
-  const id = "client-" + Math.random().toString(36).substring(2);
-  localStorage.setItem("clientId", id);
-  return id;
-}
-
-async function sendQuizResult(correct, total, selections) {
-  const payload = {
-    quizTitle: QUIZ_TITLE,
-    score: correct,
-    total: total,
-    selections: selections,
-    userAgent: navigator.userAgent,
-    clientId: localStorage.getItem("clientId") || generateClientId()
-  };
-
-  try {
-    await fetch(GAS_ENDPOINT, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    console.log("送信完了:", payload);
-  } catch (e) {
-    console.error("送信エラー:", e);
-  }
-}
-    
   </script>
 </body>
 </html>
-``
-
-
